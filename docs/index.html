@@ -31,7 +31,10 @@ header .wrap{display:flex;align-items:center;justify-content:space-between;heigh
 .intro p{margin:8px 0 0;color:var(--mute)}
 .cat{display:flex;align-items:center;justify-content:space-between;margin:10px 0 16px;gap:10px;flex-wrap:wrap}
 .cat h2{margin:0;font-size:20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;padding-bottom:56px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+.final{margin:22px 0 56px;padding:14px 18px;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:10px;background:var(--card);color:var(--mute);font-size:13.5px}
+.final b{color:var(--ink)}
+.agree{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--mute);margin-bottom:12px;cursor:pointer}.agree input{width:18px;height:18px;min-height:0;margin:1px 0 0;accent-color:var(--acc);flex:none}.agree a{color:var(--ink);text-decoration:underline}
 .pkg{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .15s,border-color .15s}
 .pkg:hover{transform:translateY(-3px);border-color:#3a3e4d}
 .pkg:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
@@ -97,6 +100,7 @@ footer .wrap{padding-top:28px;padding-bottom:32px;display:grid;gap:14px}
   </div>
   <div class="cat"><h2>Credits</h2><span class="muted">Delivered in game within a minute</span></div>
   <div class="grid" id="grid"></div>
+  <div class="final"><b>All purchases are final.</b> Credits are digital goods delivered instantly to the account you enter, so they're non-refundable once delivered, except where required by law. Please double-check your username before paying. Opening a chargeback or dispute instead of contacting us will result in the credits being removed and a ban from the server. Having an issue? Contact us on <a href="https://discord.gg/akXMTM5XMy" style="color:var(--ink);text-decoration:underline">Discord</a> first and we'll sort it out. See our <a href="#terms" style="color:var(--ink);text-decoration:underline">Terms</a> and <a href="#refunds" style="color:var(--ink);text-decoration:underline">Refund Policy</a>.</div>
 </main>
 
 <main class="wrap legal" id="legal" hidden></main>
@@ -250,10 +254,14 @@ const renderBasket = () => {
     <div class="pb">${p ? `<div class="line"><div class="t">${berries(basket)}</div><div style="flex:1"><b>${fmt(p.credits)} Credits</b><div class="muted">${user ? 'For ' + user : 'Log in to choose who gets it'}</div></div><b>${usd(p.price)}</b></div>
       <button class="btn ghost full" id="rm" style="margin-top:14px">Remove</button>` : `<p class="muted" style="margin-top:0">Your basket is empty.</p>`}</div>
     ${p ? `<div class="pf"><div style="display:flex;justify-content:space-between;margin-bottom:12px"><span>Total</span><b>${usd(p.price)} USD</b></div>
-      ${user ? `<a class="btn full" href="${p.link}?client_reference_id=${encodeURIComponent(user)}">Checkout</a>` : `<button class="btn full" id="needLogin">Log in to checkout</button>`}</div>` : ''}`;
+      ${user ? `<label class="agree"><input type="checkbox" id="agree"><span>I understand all purchases are <b>final and non-refundable</b> and I agree to the <a href="#terms">Terms of Service</a> and <a href="#refunds">Refund Policy</a>.</span></label>
+      <a class="btn full" id="checkout" href="${p.link}?client_reference_id=${encodeURIComponent(user)}">Checkout</a>` : `<button class="btn full" id="needLogin">Log in to checkout</button>`}</div>` : ''}`;
   $('basket').querySelector('[data-close]').onclick = closeAll;
   if (p) $('rm').onclick = () => { basket = -1; renderBasket(); };
   const nl = $('needLogin'); if (nl) nl.onclick = () => openPanel('login');
+  const co = $('checkout');
+  if (co) co.onclick = e => { if (!$('agree').checked) { e.preventDefault(); toast('Please tick the box to agree first'); } };
+  $('basket').querySelectorAll('.agree a').forEach(a => a.addEventListener('click', closeAll));
 };
 
 $('loginBtn').onclick = () => openPanel('login');
